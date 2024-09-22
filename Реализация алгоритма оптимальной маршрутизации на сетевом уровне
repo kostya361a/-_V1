@@ -1,0 +1,87 @@
+Алгоритм Беллмана-Форда  "находит кратчайшие пути от одной вершины до всех остальных может  работать с графами содержащими отрицательные веса"
+class Graph:
+    def __init__(self, vertices):
+        self.V = vertices  # Количество вершин
+        self.edges = []    # Список рёбер
+
+    def add_edge(self, u, v, w):
+        self.edges.append((u, v, w))
+
+    def bellman_ford(self, src):
+        # Инициализация расстояний
+        distance = [float("inf")] * self.V
+        distance[src] = 0
+
+        # Основной цикл
+        for _ in range(self.V - 1):
+            for u, v, w in self.edges:
+                if distance[u] != float("inf") and distance[u] + w < distance[v]:
+                    distance[v] = distance[u] + w
+
+        # Проверка на наличие отрицательных циклов
+        for u, v, w in self.edges:
+            if distance[u] != float("inf") and distance[u] + w < distance[v]:
+                print("Граф содержит отрицательный цикл")
+                return None
+
+        return distance
+
+
+Алгоритм Дейкстры находит кратчайший путь от одной вершины до всех остальных и работает только с неотрицательными весами.
+import heapq
+
+class GraphDijkstra:
+    def __init__(self, vertices):
+        self.V = vertices  # Количество вершин
+        self.edges = {i: [] for i in range(vertices)}  # Словарь рёбер
+
+    def add_edge(self, u, v, w):
+        self.edges[u].append((v, w))
+        self.edges[v].append((u, w))  # Если граф неориентированный
+
+    def dijkstra(self, src):
+        distance = [float("inf")] * self.V
+        distance[src] = 0
+        priority_queue = [(0, src)]
+
+        while priority_queue:
+            dist_u, u = heapq.heappop(priority_queue)
+
+            for v, weight in self.edges[u]:
+                if distance[u] + weight < distance[v]:
+                    distance[v] = distance[u] + weight
+                    heapq.heappush(priority_queue, (distance[v], v))
+
+        return distance
+Для тестирования нужно создим граф с более чем 100 вершинами  и используем два алгоритма.
+
+import random
+import time
+
+def generate_graph(num_vertices, num_edges):
+    graph = Graph(num_vertices)
+    graph_dijkstra = GraphDijkstra(num_vertices)
+
+    for _ in range(num_edges):
+        u = random.randint(0, num_vertices - 1)
+        v = random.randint(0, num_vertices - 1)
+        w = random.randint(1, 10)  # Положительные веса для Дейкстры
+        graph.add_edge(u, v, w)
+        graph_dijkstra.add_edge(u, v, w)
+
+    return graph, graph_dijkstra
+
+num_vertices = 150
+num_edges = 500
+graph, graph_dijkstra = generate_graph(num_vertices, num_edges)
+
+# Тестирование алгоритма Беллмана-Форда
+start_time = time.time()
+bf_distances = graph.bellman_ford(0)
+print(f"Алгоритм Беллмана-Форда завершён за {time.time() - start_time:.5f} секунд.")
+
+# Тестирование алгоритма Дейкстры
+start_time = time.time()
+dijkstra_distances = graph_dijkstra.dijkstra(0)
+print(f"Алгоритм Дейкстры завершён за {time.time() - start_time:.5f} секунд.")
+
