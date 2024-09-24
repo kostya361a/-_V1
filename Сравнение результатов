@@ -1,0 +1,33 @@
+import pandas as pd
+
+results = []
+
+# Пример тестов
+for num_vertices in [50, 100, 150]:
+    for num_edges in [100, 500, 1000]:
+        graph, graph_dijkstra = generate_graph(num_vertices, num_edges)
+
+        # Алгоритм Беллмана-Форда
+        start_time = time.time()
+        bf_distances = graph.bellman_ford(0)
+        bf_time = time.time() - start_time
+
+        # Алгоритм Дейкстры
+        start_time = time.time()
+        dijkstra_distances = graph_dijkstra.dijkstra(0)
+        dijkstra_time = time.time() - start_time
+
+        results.append({
+            'Vertices': num_vertices,
+            'Edges': num_edges,
+            'Bellman-Ford Time (s)': bf_time,
+            'Dijkstra Time (s)': dijkstra_time
+        })
+
+# Создание DataFrame из результатов
+results_df = pd.DataFrame(results)
+
+# Сохранение результатов в файл
+results_df.to_csv('comparison_results.csv', index=False)
+
+print(results_df)
